@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
-"""PyGuard CLI : scan, monitor, list, restore."""
+"""PyGuard CLI : scan, monitor, persistence, list, restore."""
 import argparse
 import json
 import logging
+import sys
 import time
 from pathlib import Path
 
+from pyguard import persistence
 from pyguard.quarantine import Quarantine
 from pyguard.scanner import Scanner
 
@@ -44,6 +46,29 @@ def cmd_scan(args) -> None:
         print(json.dumps(results, indent=2, ensure_ascii=False))
     else:
         print(f"\n{total} fichier(s) analysé(s), {bad} détection(s).")
+
+
+def cmd_persistence(args) -> None:
+    if sys.platform != "win32":
+        raise SystemExit("Cette commande fonctionne uniquement sous Windows.")
+    entries = persistence.scan_persistence(build_scanner(), include_microsoft_tasks=args.all_tasks)
+    shown = [e for e in entries if e.verdict != "clean"] if args.suspicious_only else entries
+
+    if args.json:
+        print(json.dumps([e.__dict__ for e in shown], indent=2, ensure_ascii=False))
+        return
+
+    tags = {"clean": "OK", "suspicious": "SUSPECT", "malicious": "MALVEILLANT"}
+    for e in shown:
+        print(f"[{tags[e.verdict]:11}] ({e.source}) {e.name}")
+        print(f"      {e.command}")
+        for r in e.reasons:
+            print(f"      - {r}")
+        if e.verdict != "clean":
+            logging.getLogger("pyguard").warning("persistance %s %s %s", e.verdict, e.command, e.reasons)
+
+    bad = sum(e.verdict != "clean" for e in entries)
+    print(f"\n{len(entries)} entrée(s) de démarrage analysée(s), {bad} suspecte(s).")
 
 
 def cmd_monitor(args) -> None:
@@ -95,6 +120,12 @@ def main() -> None:
     p.add_argument("--quarantine", action="store_true", help="isoler les fichiers malveillants")
     p.add_argument("--json", action="store_true", help="sortie JSON")
     p.set_defaults(func=cmd_scan)
+
+    p = sub.add_parser("persistence", help="analyser les points de persistance Windows")
+    p.add_argument("--suspicious-only", action="store_true", help="n'afficher que les entrées suspectes")
+    p.add_argument("--all-tasks", action="store_true", help="inclure les tâches Microsoft")
+    p.add_argument("--json", action="store_true", help="sortie JSON")
+    p.set_defaults(func=cmd_persistence)
 
     p = sub.add_parser("monitor", help="surveillance en temps réel d'un dossier")
     p.add_argument("path")

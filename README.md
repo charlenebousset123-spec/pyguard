@@ -32,7 +32,15 @@ python main.py monitor ./Downloads --quarantine   # temps réel
 python main.py list                           # voir la quarantaine
 python main.py restore <id>                   # restaurer un fichier
 ```
+## Analyse de la persistance (Windows)
 
+```powershell
+python main.py persistence                    # toutes les entrées de démarrage
+python main.py persistence --suspicious-only  # seulement les suspectes
+```
+
+Analyse les clés de registre Run/RunOnce, les dossiers Démarrage et les tâches
+planifiées, puis attribue un score (PowerShell encodé, exécution depuis Temp, etc.).
 ## Tester sans risque
 
 Crée un fichier contenant la chaîne EICAR (inoffensive, standard de test des antivirus) :
