@@ -1,4 +1,14 @@
 # PyGuard : mini antivirus en Python
+## Aperçu
+
+### Détection et mise en quarantaine d'EICAR
+![Scan avec détection](docs/scan.png)
+
+### Contenu de la quarantaine
+![Liste de la quarantaine](docs/quarantaine.png)
+
+### Tests unitaires
+![Tests](docs/tests.png)
 
 Projet éducatif de portfolio : un scanner de fichiers combinant détection par signatures,
 règles YARA, analyse heuristique statique, quarantaine et surveillance en temps réel.
