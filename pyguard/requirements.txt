@@ -1,0 +1,3 @@
+pefile
+watchdog
+yara-python
