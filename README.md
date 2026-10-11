@@ -33,6 +33,7 @@ python main.py list                           # voir la quarantaine
 python main.py restore <id>                   # restaurer un fichier
 ```
 ## Analyse de la persistance (Windows)
+![Analyse de la persistance](docs/persistance.png)
 
 ```powershell
 python main.py persistence                    # toutes les entrées de démarrage
